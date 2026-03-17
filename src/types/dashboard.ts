@@ -33,3 +33,9 @@ export type DashboardData = {
   weeklyShifts: WeeklyShift[];
   payBreakdown: PayBreakdownItem[];
 };
+
+export type UploadedScheduleImage = {
+  fileName: string;
+  previewUrl: string;
+  fileType: string;
+};

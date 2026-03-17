@@ -2,6 +2,7 @@ import { SectionCard } from "./section-card";
 import { StatsCard } from "./stats-card";
 import { PayBreakdownChart } from "./pay-breakdown-chart";
 import type { DashboardData } from "../types/dashboard";
+import { ScheduleUploadCard } from "./schedule-upload-card";
 
 type DashboardShellProps = {
   data: DashboardData;
@@ -44,21 +45,12 @@ export function DashboardShell({ data }: DashboardShellProps) {
         </section>
 
         <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <SectionCard
-            title="Schedule Upload"
-            subtitle="Upload your weekly image and prepare the schedule for review."
-          >
-            <div className="rounded-3xl border border-dashed border-violet-200 bg-violet-50/60 p-8 text-center">
-              <p className="text-base font-medium text-zinc-900">Drop your weekly schedule here</p>
-              <p className="mt-2 text-sm text-zinc-500">
-                PNG, JPG, or screenshot from your phone
-              </p>
-
-              <button className="mt-5 rounded-full bg-zinc-900 px-5 py-3 text-sm font-medium text-white transition hover:opacity-90">
-                Upload image
-              </button>
-            </div>
-          </SectionCard>
+         <SectionCard
+  title="Schedule Upload"
+  subtitle="Upload your weekly image and prepare the schedule for review."
+>
+  <ScheduleUploadCard />
+</SectionCard>
 
           <SectionCard
             title="Projection Summary"
