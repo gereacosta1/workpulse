@@ -3,6 +3,7 @@ import { SectionCard } from "./section-card";
 import { StatsCard } from "./stats-card";
 import { PayBreakdownChart } from "./pay-breakdown-chart";
 import { ShiftEditor } from "./shift-editor";
+import { PaySettingsForm } from "./pay-settings-form";
 import type { DashboardData, WeeklyShift } from "../types/dashboard";
 
 type DashboardShellProps = {
@@ -19,6 +20,9 @@ function formatCurrency(amount: number) {
 
 export function DashboardShell({ data }: DashboardShellProps) {
   const [shifts, setShifts] = useState<WeeklyShift[]>(data.weeklyShifts);
+  const [hourlyRate, setHourlyRate] = useState<number>(data.hourlyRate);
+  const [paycheckReceived, setPaycheckReceived] = useState<number>(data.paycheckReceived);
+  const [previousPeriodHours, setPreviousPeriodHours] = useState<number>(data.previousPeriodHours);
 
   const weeklyHours = useMemo(() => {
     return shifts.reduce((sum, shift) => sum + shift.hours, 0);
@@ -29,18 +33,18 @@ export function DashboardShell({ data }: DashboardShellProps) {
   }, [weeklyHours]);
 
   const estimatedGross = useMemo(() => {
-    return biweeklyHours * data.hourlyRate;
-  }, [biweeklyHours, data.hourlyRate]);
+    return biweeklyHours * hourlyRate;
+  }, [biweeklyHours, hourlyRate]);
 
   const deductionDifference = useMemo(() => {
-    return Math.max(estimatedGross - data.paycheckReceived, 0);
-  }, [estimatedGross, data.paycheckReceived]);
+    return Math.max(estimatedGross - paycheckReceived, 0);
+  }, [estimatedGross, paycheckReceived]);
 
   const monthlyEstimate = estimatedGross * 2;
   const sixMonthProjection = monthlyEstimate * 6;
   const yearlyProjection = monthlyEstimate * 12;
 
-  const hoursDifference = biweeklyHours - data.previousPeriodHours;
+  const hoursDifference = biweeklyHours - previousPeriodHours;
 
   const stats = [
     {
@@ -53,12 +57,12 @@ export function DashboardShell({ data }: DashboardShellProps) {
       id: "gross",
       label: "Estimated Gross",
       value: formatCurrency(estimatedGross),
-      helperText: `Based on $${data.hourlyRate}/hr`,
+      helperText: `Based on $${hourlyRate}/hr`,
     },
     {
       id: "check",
       label: "Paycheck Received",
-      value: formatCurrency(data.paycheckReceived),
+      value: formatCurrency(paycheckReceived),
       helperText: `${formatCurrency(deductionDifference)} difference`,
     },
   ];
@@ -71,7 +75,7 @@ export function DashboardShell({ data }: DashboardShellProps) {
 
   const payBreakdown = [
     { id: "gross", label: "Estimated Gross", amount: estimatedGross },
-    { id: "received", label: "Received", amount: data.paycheckReceived },
+    { id: "received", label: "Received", amount: paycheckReceived },
     { id: "deductions", label: "Deductions", amount: deductionDifference },
   ];
 
@@ -118,22 +122,38 @@ export function DashboardShell({ data }: DashboardShellProps) {
             <ShiftEditor initialShifts={shifts} onShiftsChange={setShifts} />
           </SectionCard>
 
-          <SectionCard
-            title="Projection Summary"
-            subtitle="Quick projections based on your current period."
-          >
-            <div className="grid gap-4">
-              {summary.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-4"
-                >
-                  <span className="text-sm text-zinc-500">{item.label}</span>
-                  <span className="text-lg font-semibold text-zinc-900">{item.value}</span>
-                </div>
-              ))}
-            </div>
-          </SectionCard>
+          <div className="grid gap-6">
+            <SectionCard
+              title="Pay Settings"
+              subtitle="Adjust the core financial values for this pay period."
+            >
+              <PaySettingsForm
+                hourlyRate={hourlyRate}
+                paycheckReceived={paycheckReceived}
+                previousPeriodHours={previousPeriodHours}
+                onHourlyRateChange={setHourlyRate}
+                onPaycheckReceivedChange={setPaycheckReceived}
+                onPreviousPeriodHoursChange={setPreviousPeriodHours}
+              />
+            </SectionCard>
+
+            <SectionCard
+              title="Projection Summary"
+              subtitle="Quick projections based on your current period."
+            >
+              <div className="grid gap-4">
+                {summary.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-4"
+                  >
+                    <span className="text-sm text-zinc-500">{item.label}</span>
+                    <span className="text-lg font-semibold text-zinc-900">{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            </SectionCard>
+          </div>
         </div>
 
         <SectionCard
