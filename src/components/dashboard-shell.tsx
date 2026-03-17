@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { SectionCard } from "./section-card";
 import { StatsCard } from "./stats-card";
 import { PayBreakdownChart } from "./pay-breakdown-chart";
@@ -9,6 +9,17 @@ import type { DashboardData, WeeklyShift } from "../types/dashboard";
 
 type DashboardShellProps = {
   data: DashboardData;
+};
+
+const STORAGE_KEY = "workpulse-dashboard-state";
+
+type StoredDashboardState = {
+  shifts: WeeklyShift[];
+  hourlyRate: number;
+  paycheckReceived: number;
+  previousPeriodHours: number;
+  payPeriodStart: string;
+  payPeriodEnd: string;
 };
 
 function formatCurrency(amount: number) {
@@ -28,13 +39,85 @@ function formatDateLabel(dateString: string) {
   }).format(date);
 }
 
+function getInitialState(data: DashboardData): StoredDashboardState {
+  if (typeof window === "undefined") {
+    return {
+      shifts: data.weeklyShifts,
+      hourlyRate: data.hourlyRate,
+      paycheckReceived: data.paycheckReceived,
+      previousPeriodHours: data.previousPeriodHours,
+      payPeriodStart: data.payPeriodStart,
+      payPeriodEnd: data.payPeriodEnd,
+    };
+  }
+
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+
+    if (!raw) {
+      return {
+        shifts: data.weeklyShifts,
+        hourlyRate: data.hourlyRate,
+        paycheckReceived: data.paycheckReceived,
+        previousPeriodHours: data.previousPeriodHours,
+        payPeriodStart: data.payPeriodStart,
+        payPeriodEnd: data.payPeriodEnd,
+      };
+    }
+
+    const parsed = JSON.parse(raw) as Partial<StoredDashboardState>;
+
+    return {
+      shifts: parsed.shifts ?? data.weeklyShifts,
+      hourlyRate: parsed.hourlyRate ?? data.hourlyRate,
+      paycheckReceived: parsed.paycheckReceived ?? data.paycheckReceived,
+      previousPeriodHours: parsed.previousPeriodHours ?? data.previousPeriodHours,
+      payPeriodStart: parsed.payPeriodStart ?? data.payPeriodStart,
+      payPeriodEnd: parsed.payPeriodEnd ?? data.payPeriodEnd,
+    };
+  } catch {
+    return {
+      shifts: data.weeklyShifts,
+      hourlyRate: data.hourlyRate,
+      paycheckReceived: data.paycheckReceived,
+      previousPeriodHours: data.previousPeriodHours,
+      payPeriodStart: data.payPeriodStart,
+      payPeriodEnd: data.payPeriodEnd,
+    };
+  }
+}
+
 export function DashboardShell({ data }: DashboardShellProps) {
-  const [shifts, setShifts] = useState<WeeklyShift[]>(data.weeklyShifts);
-  const [hourlyRate, setHourlyRate] = useState<number>(data.hourlyRate);
-  const [paycheckReceived, setPaycheckReceived] = useState<number>(data.paycheckReceived);
-  const [previousPeriodHours, setPreviousPeriodHours] = useState<number>(data.previousPeriodHours);
-  const [payPeriodStart, setPayPeriodStart] = useState<string>(data.payPeriodStart);
-  const [payPeriodEnd, setPayPeriodEnd] = useState<string>(data.payPeriodEnd);
+  const initialState = getInitialState(data);
+
+  const [shifts, setShifts] = useState<WeeklyShift[]>(initialState.shifts);
+  const [hourlyRate, setHourlyRate] = useState<number>(initialState.hourlyRate);
+  const [paycheckReceived, setPaycheckReceived] = useState<number>(initialState.paycheckReceived);
+  const [previousPeriodHours, setPreviousPeriodHours] = useState<number>(
+    initialState.previousPeriodHours
+  );
+  const [payPeriodStart, setPayPeriodStart] = useState<string>(initialState.payPeriodStart);
+  const [payPeriodEnd, setPayPeriodEnd] = useState<string>(initialState.payPeriodEnd);
+
+  useEffect(() => {
+    const stateToStore: StoredDashboardState = {
+      shifts,
+      hourlyRate,
+      paycheckReceived,
+      previousPeriodHours,
+      payPeriodStart,
+      payPeriodEnd,
+    };
+
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToStore));
+  }, [
+    shifts,
+    hourlyRate,
+    paycheckReceived,
+    previousPeriodHours,
+    payPeriodStart,
+    payPeriodEnd,
+  ]);
 
   const weeklyHours = useMemo(() => {
     return shifts.reduce((sum, shift) => sum + shift.hours, 0);
