@@ -1,8 +1,8 @@
 import { SectionCard } from "./section-card";
 import { StatsCard } from "./stats-card";
 import { PayBreakdownChart } from "./pay-breakdown-chart";
+import { ShiftEditor } from "./shift-editor";
 import type { DashboardData } from "../types/dashboard";
-import { ScheduleUploadCard } from "./schedule-upload-card";
 
 type DashboardShellProps = {
   data: DashboardData;
@@ -45,12 +45,12 @@ export function DashboardShell({ data }: DashboardShellProps) {
         </section>
 
         <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-         <SectionCard
-  title="Schedule Upload"
-  subtitle="Upload your weekly image and prepare the schedule for review."
->
-  <ScheduleUploadCard />
-</SectionCard>
+          <SectionCard
+            title="Shift Editor"
+            subtitle="Review and adjust each shift if someone arrived late, left early, or took a break."
+          >
+            <ShiftEditor initialShifts={data.weeklyShifts} />
+          </SectionCard>
 
           <SectionCard
             title="Projection Summary"
@@ -75,25 +75,6 @@ export function DashboardShell({ data }: DashboardShellProps) {
           subtitle="A visual breakdown of the current pay period."
         >
           <PayBreakdownChart data={data.payBreakdown} />
-        </SectionCard>
-
-        <SectionCard
-          title="Weekly Shift Preview"
-          subtitle="Detected shifts that can later be edited if someone arrived late or left early."
-        >
-          <div className="grid gap-3">
-            {data.weeklyShifts.map((shift) => (
-              <div
-                key={shift.id}
-                className="grid grid-cols-[1.2fr_1fr_1fr_0.8fr] items-center rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-4 text-sm"
-              >
-                <span className="font-medium text-zinc-900">{shift.day}</span>
-                <span className="text-zinc-600">{shift.start}</span>
-                <span className="text-zinc-600">{shift.end}</span>
-                <span className="text-right font-semibold text-zinc-900">{shift.hours}h</span>
-              </div>
-            ))}
-          </div>
         </SectionCard>
       </div>
     </main>

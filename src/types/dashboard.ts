@@ -16,6 +16,7 @@ export type WeeklyShift = {
   day: string;
   start: string;
   end: string;
+  breakMinutes: number;
   hours: number;
 };
 

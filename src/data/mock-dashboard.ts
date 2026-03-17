@@ -34,11 +34,11 @@ export const mockDashboardData: DashboardData = {
     { id: "deductions", label: "Deductions", amount: 242 },
   ],
   weeklyShifts: [
-    { id: "mon", day: "Monday", start: "9:00 AM", end: "5:00 PM", hours: 8 },
-    { id: "tue", day: "Tuesday", start: "10:00 AM", end: "6:00 PM", hours: 8 },
-    { id: "wed", day: "Wednesday", start: "9:00 AM", end: "4:30 PM", hours: 7.5 },
-    { id: "thu", day: "Thursday", start: "9:30 AM", end: "5:30 PM", hours: 8 },
-    { id: "fri", day: "Friday", start: "11:00 AM", end: "7:00 PM", hours: 8 },
-    { id: "sat", day: "Saturday", start: "10:00 AM", end: "4:00 PM", hours: 6 },
+    { id: "mon", day: "Monday", start: "09:00", end: "17:00", breakMinutes: 0, hours: 8 },
+    { id: "tue", day: "Tuesday", start: "10:00", end: "18:00", breakMinutes: 0, hours: 8 },
+    { id: "wed", day: "Wednesday", start: "09:00", end: "16:30", breakMinutes: 0, hours: 7.5 },
+    { id: "thu", day: "Thursday", start: "09:30", end: "17:30", breakMinutes: 0, hours: 8 },
+    { id: "fri", day: "Friday", start: "11:00", end: "19:00", breakMinutes: 0, hours: 8 },
+    { id: "sat", day: "Saturday", start: "10:00", end: "16:00", breakMinutes: 0, hours: 6 },
   ],
 };
