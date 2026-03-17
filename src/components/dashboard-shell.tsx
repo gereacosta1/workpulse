@@ -1,5 +1,6 @@
 import { SectionCard } from "./section-card";
 import { StatsCard } from "./stats-card";
+import { PayBreakdownChart } from "./pay-breakdown-chart";
 import type { DashboardData } from "../types/dashboard";
 
 type DashboardShellProps = {
@@ -76,6 +77,13 @@ export function DashboardShell({ data }: DashboardShellProps) {
             </div>
           </SectionCard>
         </div>
+
+        <SectionCard
+          title="Paycheck Visual"
+          subtitle="A visual breakdown of the current pay period."
+        >
+          <PayBreakdownChart data={data.payBreakdown} />
+        </SectionCard>
 
         <SectionCard
           title="Weekly Shift Preview"

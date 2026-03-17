@@ -28,6 +28,11 @@ export const mockDashboardData: DashboardData = {
     { id: "sixMonths", label: "6 Month Projection", value: "$17,880" },
     { id: "yearly", label: "12 Month Projection", value: "$35,760" },
   ],
+  payBreakdown: [
+    { id: "gross", label: "Estimated Gross", amount: 1490 },
+    { id: "received", label: "Received", amount: 1248 },
+    { id: "deductions", label: "Deductions", amount: 242 },
+  ],
   weeklyShifts: [
     { id: "mon", day: "Monday", start: "9:00 AM", end: "5:00 PM", hours: 8 },
     { id: "tue", day: "Tuesday", start: "10:00 AM", end: "6:00 PM", hours: 8 },

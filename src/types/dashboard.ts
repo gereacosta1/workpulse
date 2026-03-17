@@ -19,10 +19,17 @@ export type WeeklyShift = {
   hours: number;
 };
 
+export type PayBreakdownItem = {
+  id: string;
+  label: string;
+  amount: number;
+};
+
 export type DashboardData = {
   periodLabel: string;
   payPeriod: string;
   stats: StatCardItem[];
   summary: SummaryMetric[];
   weeklyShifts: WeeklyShift[];
+  payBreakdown: PayBreakdownItem[];
 };
