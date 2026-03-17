@@ -1,14 +1,80 @@
+import { useMemo, useState } from "react";
 import { SectionCard } from "./section-card";
 import { StatsCard } from "./stats-card";
 import { PayBreakdownChart } from "./pay-breakdown-chart";
 import { ShiftEditor } from "./shift-editor";
-import type { DashboardData } from "../types/dashboard";
+import type { DashboardData, WeeklyShift } from "../types/dashboard";
 
 type DashboardShellProps = {
   data: DashboardData;
 };
 
+function formatCurrency(amount: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
 export function DashboardShell({ data }: DashboardShellProps) {
+  const [shifts, setShifts] = useState<WeeklyShift[]>(data.weeklyShifts);
+
+  const weeklyHours = useMemo(() => {
+    return shifts.reduce((sum, shift) => sum + shift.hours, 0);
+  }, [shifts]);
+
+  const biweeklyHours = useMemo(() => {
+    return weeklyHours * 2;
+  }, [weeklyHours]);
+
+  const estimatedGross = useMemo(() => {
+    return biweeklyHours * data.hourlyRate;
+  }, [biweeklyHours, data.hourlyRate]);
+
+  const deductionDifference = useMemo(() => {
+    return Math.max(estimatedGross - data.paycheckReceived, 0);
+  }, [estimatedGross, data.paycheckReceived]);
+
+  const monthlyEstimate = estimatedGross * 2;
+  const sixMonthProjection = monthlyEstimate * 6;
+  const yearlyProjection = monthlyEstimate * 12;
+
+  const hoursDifference = biweeklyHours - data.previousPeriodHours;
+
+  const stats = [
+    {
+      id: "hours",
+      label: "Biweekly Hours",
+      value: `${Number(biweeklyHours.toFixed(2))}h`,
+      helperText: `${hoursDifference >= 0 ? "+" : ""}${Number(hoursDifference.toFixed(2))}h from last period`,
+    },
+    {
+      id: "gross",
+      label: "Estimated Gross",
+      value: formatCurrency(estimatedGross),
+      helperText: `Based on $${data.hourlyRate}/hr`,
+    },
+    {
+      id: "check",
+      label: "Paycheck Received",
+      value: formatCurrency(data.paycheckReceived),
+      helperText: `${formatCurrency(deductionDifference)} difference`,
+    },
+  ];
+
+  const summary = [
+    { id: "monthly", label: "Monthly Estimate", value: formatCurrency(monthlyEstimate) },
+    { id: "sixMonths", label: "6 Month Projection", value: formatCurrency(sixMonthProjection) },
+    { id: "yearly", label: "12 Month Projection", value: formatCurrency(yearlyProjection) },
+  ];
+
+  const payBreakdown = [
+    { id: "gross", label: "Estimated Gross", amount: estimatedGross },
+    { id: "received", label: "Received", amount: data.paycheckReceived },
+    { id: "deductions", label: "Deductions", amount: deductionDifference },
+  ];
+
   return (
     <main className="min-h-screen px-5 py-6 md:px-8 md:py-10">
       <div className="mx-auto flex max-w-6xl flex-col gap-6">
@@ -38,7 +104,7 @@ export function DashboardShell({ data }: DashboardShellProps) {
           </div>
 
           <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {data.stats.map((item) => (
+            {stats.map((item) => (
               <StatsCard key={item.id} item={item} />
             ))}
           </div>
@@ -49,7 +115,7 @@ export function DashboardShell({ data }: DashboardShellProps) {
             title="Shift Editor"
             subtitle="Review and adjust each shift if someone arrived late, left early, or took a break."
           >
-            <ShiftEditor initialShifts={data.weeklyShifts} />
+            <ShiftEditor initialShifts={shifts} onShiftsChange={setShifts} />
           </SectionCard>
 
           <SectionCard
@@ -57,7 +123,7 @@ export function DashboardShell({ data }: DashboardShellProps) {
             subtitle="Quick projections based on your current period."
           >
             <div className="grid gap-4">
-              {data.summary.map((item) => (
+              {summary.map((item) => (
                 <div
                   key={item.id}
                   className="flex items-center justify-between rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-4"
@@ -74,7 +140,7 @@ export function DashboardShell({ data }: DashboardShellProps) {
           title="Paycheck Visual"
           subtitle="A visual breakdown of the current pay period."
         >
-          <PayBreakdownChart data={data.payBreakdown} />
+          <PayBreakdownChart data={payBreakdown} />
         </SectionCard>
       </div>
     </main>

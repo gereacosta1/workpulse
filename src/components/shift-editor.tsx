@@ -1,12 +1,13 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { WeeklyShift } from "../types/dashboard";
 import { calculateShiftHours } from "../utils/time";
 
 type ShiftEditorProps = {
   initialShifts: WeeklyShift[];
+  onShiftsChange?: (shifts: WeeklyShift[]) => void;
 };
 
-export function ShiftEditor({ initialShifts }: ShiftEditorProps) {
+export function ShiftEditor({ initialShifts, onShiftsChange }: ShiftEditorProps) {
   const [shifts, setShifts] = useState<WeeklyShift[]>(initialShifts);
 
   function updateShift(
@@ -34,6 +35,10 @@ export function ShiftEditor({ initialShifts }: ShiftEditorProps) {
       })
     );
   }
+
+  useEffect(() => {
+    onShiftsChange?.(shifts);
+  }, [shifts, onShiftsChange]);
 
   const totalHours = useMemo(() => {
     return shifts.reduce((sum, shift) => sum + shift.hours, 0);

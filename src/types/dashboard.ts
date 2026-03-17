@@ -29,10 +29,10 @@ export type PayBreakdownItem = {
 export type DashboardData = {
   periodLabel: string;
   payPeriod: string;
-  stats: StatCardItem[];
-  summary: SummaryMetric[];
+  hourlyRate: number;
+  paycheckReceived: number;
+  previousPeriodHours: number;
   weeklyShifts: WeeklyShift[];
-  payBreakdown: PayBreakdownItem[];
 };
 
 export type UploadedScheduleImage = {
