@@ -4,6 +4,7 @@ import { StatsCard } from "./stats-card";
 import { PayBreakdownChart } from "./pay-breakdown-chart";
 import { ShiftEditor } from "./shift-editor";
 import { PaySettingsForm } from "./pay-settings-form";
+import { PayPeriodForm } from "./pay-period-form";
 import type { DashboardData, WeeklyShift } from "../types/dashboard";
 
 type DashboardShellProps = {
@@ -18,11 +19,22 @@ function formatCurrency(amount: number) {
   }).format(amount);
 }
 
+function formatDateLabel(dateString: string) {
+  const date = new Date(`${dateString}T00:00:00`);
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "2-digit",
+  }).format(date);
+}
+
 export function DashboardShell({ data }: DashboardShellProps) {
   const [shifts, setShifts] = useState<WeeklyShift[]>(data.weeklyShifts);
   const [hourlyRate, setHourlyRate] = useState<number>(data.hourlyRate);
   const [paycheckReceived, setPaycheckReceived] = useState<number>(data.paycheckReceived);
   const [previousPeriodHours, setPreviousPeriodHours] = useState<number>(data.previousPeriodHours);
+  const [payPeriodStart, setPayPeriodStart] = useState<string>(data.payPeriodStart);
+  const [payPeriodEnd, setPayPeriodEnd] = useState<string>(data.payPeriodEnd);
 
   const weeklyHours = useMemo(() => {
     return shifts.reduce((sum, shift) => sum + shift.hours, 0);
@@ -45,6 +57,11 @@ export function DashboardShell({ data }: DashboardShellProps) {
   const yearlyProjection = monthlyEstimate * 12;
 
   const hoursDifference = biweeklyHours - previousPeriodHours;
+
+  const periodLabelText =
+    payPeriodStart && payPeriodEnd
+      ? `${formatDateLabel(payPeriodStart)} - ${formatDateLabel(payPeriodEnd)}`
+      : data.payPeriod;
 
   const stats = [
     {
@@ -103,7 +120,7 @@ export function DashboardShell({ data }: DashboardShellProps) {
               <p className="text-xs uppercase tracking-[0.18em] text-zinc-500">
                 {data.periodLabel}
               </p>
-              <p className="mt-2 text-lg font-semibold text-zinc-900">{data.payPeriod}</p>
+              <p className="mt-2 text-lg font-semibold text-zinc-900">{periodLabelText}</p>
             </div>
           </div>
 
@@ -134,6 +151,18 @@ export function DashboardShell({ data }: DashboardShellProps) {
                 onHourlyRateChange={setHourlyRate}
                 onPaycheckReceivedChange={setPaycheckReceived}
                 onPreviousPeriodHoursChange={setPreviousPeriodHours}
+              />
+            </SectionCard>
+
+            <SectionCard
+              title="Pay Period"
+              subtitle="Set the start and end dates for the current pay cycle."
+            >
+              <PayPeriodForm
+                startDate={payPeriodStart}
+                endDate={payPeriodEnd}
+                onStartDateChange={setPayPeriodStart}
+                onEndDateChange={setPayPeriodEnd}
               />
             </SectionCard>
 

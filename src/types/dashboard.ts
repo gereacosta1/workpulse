@@ -29,6 +29,8 @@ export type PayBreakdownItem = {
 export type DashboardData = {
   periodLabel: string;
   payPeriod: string;
+  payPeriodStart: string;
+  payPeriodEnd: string;
   hourlyRate: number;
   paycheckReceived: number;
   previousPeriodHours: number;

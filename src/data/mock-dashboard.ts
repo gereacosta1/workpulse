@@ -3,6 +3,8 @@ import type { DashboardData } from "../types/dashboard";
 export const mockDashboardData: DashboardData = {
   periodLabel: "Current pay period",
   payPeriod: "Mar 03 - Mar 16",
+  payPeriodStart: "2026-03-03",
+  payPeriodEnd: "2026-03-16",
   hourlyRate: 20,
   paycheckReceived: 1248,
   previousPeriodHours: 70,
